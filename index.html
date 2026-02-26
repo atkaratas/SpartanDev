@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spartans Dev | AI Council Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Firebase SDK (Compat Version for stability) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
@@ -91,7 +92,7 @@
         .timestamp { color: #555; margin-right: 10px; }
         .tag-ares { color: #ff4757; font-weight: bold; }
         .tag-midas { color: #ffa502; font-weight: bold; }
-        .tag-athena { color: #70a1ff; font-weight: bold; }
+        .tag-athen { color: #70a1ff; font-weight: bold; }
         .tag-hepha { color: #2ed573; font-weight: bold; }
 
         footer { text-align: center; margin-top: 50px; font-size: 0.7rem; color: #333; letter-spacing: 3px; padding-bottom: 40px; }
@@ -111,24 +112,40 @@
     </div>
 
     <div class="command-log-container">
-        <div class="log-header"><span>GLOBAL REAL-TIME COMMAND LOG</span><span>ENCRYPTED FEED :: Q1 2026</span></div>
+        <div class="log-header"><span>GLOBAL REAL-TIME COMMAND LOG</span><span>SECURE FEED :: V2.1</span></div>
         <div id="logBody" class="log-body">
-            <div class="log-line">Initializing secure connection to Firebase...</div>
+            <div class="log-line">Connecting to Spartans Core...</div>
         </div>
     </div>
 
     <script>
+        // Updated Firebase Logic with better error handling and structure parsing
         const firebaseConfig = { databaseURL: "https://spartandev-dashboard-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // Listen for new logs
         db.ref('logs').on('child_added', (snapshot) => {
             const data = snapshot.val();
             const logBody = document.getElementById('logBody');
+            
+            if (data && data.msg) {
+                const line = document.createElement('div');
+                line.className = 'log-line';
+                const time = data.time || new Date().toLocaleTimeString();
+                const bot = data.bot || "SYSTEM";
+                const msg = data.msg;
+                
+                line.innerHTML = `<span class="timestamp">[${time}]</span> <span class="tag-${bot.toLowerCase().substring(0,5)}">[${bot}]</span>: ${msg}`;
+                logBody.prepend(line);
+            }
+        }, (error) => {
+            console.error("Firebase Sync Error:", error);
             const line = document.createElement('div');
             line.className = 'log-line';
-            line.innerHTML = `<span class="timestamp">[${data.time}]</span> <span class="tag-${data.bot.toLowerCase().substring(0,5)}">[${data.bot}]</span>: ${data.msg}`;
-            logBody.prepend(line);
+            line.style.color = 'red';
+            line.innerHTML = `[ERROR]: Database Connection Failed. ${error.message}`;
+            document.getElementById('logBody').prepend(line);
         });
     </script>
 
