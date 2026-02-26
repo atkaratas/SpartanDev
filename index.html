@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spartans Dev | AI Council Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Firebase SDK (Compat Version for stability) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
@@ -25,130 +24,139 @@
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 40px;
-            overflow-x: hidden;
         }
-        h1, h2, .bot-name { font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 4px; }
+        h1, h2, .section-title { font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 4px; }
         
-        .header { text-align: center; margin-bottom: 60px; border-bottom: 1px solid var(--maroon); padding-bottom: 20px; }
-        .header h1 { font-size: 3rem; color: var(--maroon); text-shadow: 0 0 20px rgba(128, 0, 0, 0.5); margin: 0; }
-        .header p { color: #777; font-size: 0.8rem; letter-spacing: 5px; opacity: 0.7; }
+        .header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid var(--maroon); padding-bottom: 20px; }
+        .header h1 { font-size: 3rem; color: var(--maroon); text-shadow: 0 0 20px rgba(128, 0, 0, 0.5); }
+
+        /* MISSION CHECKLIST */
+        .mission-panel {
+            max-width: 1400px;
+            margin: 0 auto 30px auto;
+            background: rgba(128, 0, 0, 0.05);
+            border: 1px solid var(--maroon);
+            padding: 20px;
+            border-radius: 4px;
+        }
+        .section-title { font-size: 1.2rem; color: var(--imperial-gold); margin-bottom: 15px; border-left: 4px solid var(--imperial-gold); padding-left: 15px; }
+        .task-list { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .task-item { 
+            background: rgba(255,255,255,0.02); 
+            padding: 12px 20px; 
+            border-radius: 4px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        .task-item.completed { opacity: 0.4; text-decoration: line-through; border-color: #2ecc71; }
+        .task-item.completed .status-box { background: #2ecc71; border-color: #2ecc71; }
+        .status-box { width: 15px; height: 15px; border: 1px solid var(--neon-blue); border-radius: 2px; }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            gap: 20px;
             max-width: 1400px;
-            margin: 0 auto 50px auto;
+            margin: 0 auto 30px auto;
         }
 
         .bot-card {
             background: var(--glass-bg);
             border: 1px solid rgba(255,255,255,0.05);
-            padding: 30px;
+            padding: 20px;
             border-radius: 4px;
-            position: relative;
+            text-align: center;
         }
-
-        .status-indicator {
-            position: absolute; top: 20px; right: 20px;
-            display: flex; align-items: center; gap: 8px;
-            font-size: 0.6rem; color: var(--neon-blue);
-        }
-        .status-dot { height: 8px; width: 8px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 10px #2ecc71; }
-
-        .bot-name { font-size: 1.8rem; color: var(--imperial-gold); margin-bottom: 5px; }
-        .bot-role { font-size: 0.7rem; color: #777; margin-bottom: 15px; font-weight: 700; letter-spacing: 2px; }
+        .bot-name { font-size: 1.5rem; color: var(--imperial-gold); margin-bottom: 5px; }
 
         .command-log-container {
             max-width: 1400px;
             margin: 0 auto;
             background: #050505;
-            border: 1px solid var(--maroon);
+            border: 1px solid var(--royal-purple);
             border-radius: 4px;
             overflow: hidden;
         }
         .log-header {
-            background: var(--maroon);
+            background: var(--royal-purple);
             color: #FFF;
-            padding: 10px 20px;
+            padding: 8px 20px;
             font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
-            letter-spacing: 3px;
+            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
         }
         .log-body {
-            height: 500px;
+            height: 400px;
             padding: 20px;
             font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--neon-blue);
             overflow-y: auto;
-            line-height: 1.5;
         }
-        .log-line { margin-bottom: 8px; border-bottom: 1px solid rgba(0, 243, 255, 0.05); padding-bottom: 4px; animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .timestamp { color: #555; margin-right: 10px; }
+        .log-line { margin-bottom: 5px; border-bottom: 1px solid rgba(0, 243, 255, 0.03); padding-bottom: 3px; }
         .tag-ares { color: #ff4757; font-weight: bold; }
         .tag-midas { color: #ffa502; font-weight: bold; }
         .tag-athen { color: #70a1ff; font-weight: bold; }
         .tag-hepha { color: #2ed573; font-weight: bold; }
-
-        footer { text-align: center; margin-top: 50px; font-size: 0.7rem; color: #333; letter-spacing: 3px; padding-bottom: 40px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>SPARTANS COUNCIL</h1>
-        <p>AUTONOMOUS REAL-TIME GOVERNANCE FEED</p>
+        <h1>SPARTANS CORE</h1>
+    </div>
+
+    <!-- ACTIVE MISSIONS (CHECKLIST) -->
+    <div class="mission-panel">
+        <div class="section-title">Active Strategic Missions</div>
+        <ul id="taskList" class="task-list">
+            <!-- Tasks will be injected here -->
+        </ul>
     </div>
 
     <div class="dashboard-grid">
-        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">ARES</div><div class="bot-role">Strategic Risk Auditor</div></div>
-        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">MIDAS</div><div class="bot-role">Chief BizDev Officer</div></div>
-        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">ATHENA</div><div class="bot-role">Chief Security Officer</div></div>
-        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">HEPHAESTUS</div><div class="bot-role">Lead Architect & Dev</div></div>
+        <div class="bot-card"><div class="bot-name">ARES</div></div>
+        <div class="bot-card"><div class="bot-name">MIDAS</div></div>
+        <div class="bot-card"><div class="bot-name">ATHENA</div></div>
+        <div class="bot-card"><div class="bot-name">HEPHAESTUS</div></div>
     </div>
 
     <div class="command-log-container">
-        <div class="log-header"><span>GLOBAL REAL-TIME COMMAND LOG</span><span>SECURE FEED :: V2.1</span></div>
-        <div id="logBody" class="log-body">
-            <div class="log-line">Connecting to Spartans Core...</div>
-        </div>
+        <div class="log-header"><span>REAL-TIME COMMAND LOG</span><span>V2.2 :: ENCRYPTED</span></div>
+        <div id="logBody" class="log-body"></div>
     </div>
 
     <script>
-        // Updated Firebase Logic with better error handling and structure parsing
         const firebaseConfig = { databaseURL: "https://spartandev-dashboard-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Listen for new logs
-        db.ref('logs').on('child_added', (snapshot) => {
+        // TASK LIST LOGIC
+        db.ref('tasks').on('value', (snapshot) => {
+            const tasks = snapshot.val();
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+            
+            for (let id in tasks) {
+                const task = tasks[id];
+                const li = document.createElement('li');
+                li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `<div class="status-box"></div> <span>${task.text}</span>`;
+                taskList.appendChild(li);
+            }
+        });
+
+        // LOG FEED LOGIC
+        db.ref('logs').limitToLast(50).on('child_added', (snapshot) => {
             const data = snapshot.val();
             const logBody = document.getElementById('logBody');
-            
-            if (data && data.msg) {
-                const line = document.createElement('div');
-                line.className = 'log-line';
-                const time = data.time || new Date().toLocaleTimeString();
-                const bot = data.bot || "SYSTEM";
-                const msg = data.msg;
-                
-                line.innerHTML = `<span class="timestamp">[${time}]</span> <span class="tag-${bot.toLowerCase().substring(0,5)}">[${bot}]</span>: ${msg}`;
-                logBody.prepend(line);
-            }
-        }, (error) => {
-            console.error("Firebase Sync Error:", error);
             const line = document.createElement('div');
             line.className = 'log-line';
-            line.style.color = 'red';
-            line.innerHTML = `[ERROR]: Database Connection Failed. ${error.message}`;
-            document.getElementById('logBody').prepend(line);
+            line.innerHTML = `<span style="color:#555">[${data.time}]</span> <span class="tag-${data.bot.toLowerCase().substring(0,5)}">[${data.bot}]</span>: ${data.msg}`;
+            logBody.prepend(line);
         });
     </script>
-
-    <footer>MANAGED BY WARLOCK2 | POWERED BY GROQ & FIREBASE | SPARTANS CORE</footer>
 </body>
 </html>
