@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spartans Dev | AI Council Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <style>
         :root {
             --pure-black: #020202;
@@ -13,7 +15,6 @@
             --imperial-gold: #C5A022;
             --neon-blue: #00f3ff;
             --glass-bg: rgba(10, 10, 10, 0.95);
-            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         body {
             background-color: var(--pure-black);
@@ -33,7 +34,7 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
             max-width: 1400px;
             margin: 0 auto 50px auto;
@@ -45,24 +46,18 @@
             padding: 30px;
             border-radius: 4px;
             position: relative;
-            transition: var(--transition);
-        }
-        .bot-card:hover {
-            border-color: var(--neon-blue);
-            transform: translateY(-5px);
         }
 
         .status-indicator {
             position: absolute; top: 20px; right: 20px;
             display: flex; align-items: center; gap: 8px;
-            font-size: 0.6rem; color: var(--neon-blue); text-transform: uppercase;
+            font-size: 0.6rem; color: var(--neon-blue);
         }
         .status-dot { height: 8px; width: 8px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 10px #2ecc71; }
 
         .bot-name { font-size: 1.8rem; color: var(--imperial-gold); margin-bottom: 5px; }
         .bot-role { font-size: 0.7rem; color: #777; margin-bottom: 15px; font-weight: 700; letter-spacing: 2px; }
 
-        /* COMMAND LOG AREA */
         .command-log-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -82,29 +77,22 @@
             justify-content: space-between;
         }
         .log-body {
-            height: 400px;
+            height: 500px;
             padding: 20px;
             font-family: 'Courier New', monospace;
             font-size: 0.85rem;
             color: var(--neon-blue);
             overflow-y: auto;
             line-height: 1.5;
-            background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-            background-size: 100% 25px;
         }
-        .log-line { margin-bottom: 8px; border-bottom: 1px solid rgba(0, 243, 255, 0.05); padding-bottom: 4px; }
+        .log-line { margin-bottom: 8px; border-bottom: 1px solid rgba(0, 243, 255, 0.05); padding-bottom: 4px; animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
         .timestamp { color: #555; margin-right: 10px; }
         .tag-ares { color: #ff4757; font-weight: bold; }
         .tag-midas { color: #ffa502; font-weight: bold; }
         .tag-athena { color: #70a1ff; font-weight: bold; }
-        .tag-heph { color: #2ed573; font-weight: bold; }
-
-        .metric-mini-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;
-        }
-        .metric-mini-box { background: rgba(255,255,255,0.02); padding: 10px; text-align: center; }
-        .metric-val { display: block; font-size: 1.1rem; font-weight: 900; color: #FFF; }
-        .metric-lab { font-size: 0.5rem; color: #555; text-transform: uppercase; }
+        .tag-hepha { color: #2ed573; font-weight: bold; }
 
         footer { text-align: center; margin-top: 50px; font-size: 0.7rem; color: #333; letter-spacing: 3px; padding-bottom: 40px; }
     </style>
@@ -112,71 +100,38 @@
 <body>
     <div class="header">
         <h1>SPARTANS COUNCIL</h1>
-        <p>AUTONOMOUS ASSET INTELLIGENCE & GOVERNANCE</p>
+        <p>AUTONOMOUS REAL-TIME GOVERNANCE FEED</p>
     </div>
 
     <div class="dashboard-grid">
-        <!-- BOT CARDS REMAIN AS SUMMARY -->
-        <div class="bot-card">
-            <div class="status-indicator"><div class="status-dot"></div> ACTIVE</div>
-            <div class="bot-name">ARES</div>
-            <div class="bot-role">Strategic Auditor</div>
-            <div class="metric-mini-grid">
-                <div class="metric-mini-box"><span class="metric-val">17.6%</span><span class="metric-lab">IRR</span></div>
-                <div class="metric-mini-box"><span class="metric-val">CRITICAL</span><span class="metric-lab">Focus</span></div>
-            </div>
-        </div>
-        <div class="bot-card">
-            <div class="status-indicator"><div class="status-dot"></div> ACTIVE</div>
-            <div class="bot-name">MIDAS</div>
-            <div class="bot-role">BizDev Leader</div>
-            <div class="metric-mini-grid">
-                <div class="metric-mini-box"><span class="metric-val">$5.28B</span><span class="metric-lab">CAPEX</span></div>
-                <div class="metric-mini-box"><span class="metric-val">$862M</span><span class="metric-lab">ARR</span></div>
-            </div>
-        </div>
-        <div class="bot-card">
-            <div class="status-indicator"><div class="status-dot"></div> ACTIVE</div>
-            <div class="bot-name">ATHENA</div>
-            <div class="bot-role">Cyber Security</div>
-            <div class="metric-mini-grid">
-                <div class="metric-mini-box"><span class="metric-val">ACTIVE</span><span class="metric-lab">SIEM/EDR</span></div>
-                <div class="metric-mini-box"><span class="metric-val">ZERO-T</span><span class="metric-lab">Protocol</span></div>
-            </div>
-        </div>
-        <div class="bot-card">
-            <div class="status-indicator"><div class="status-dot"></div> ACTIVE</div>
-            <div class="bot-name">HEPHAESTUS</div>
-            <div class="bot-role">Lead Architect</div>
-            <div class="metric-mini-grid">
-                <div class="metric-mini-box"><span class="metric-val">1.18</span><span class="metric-lab">PUE</span></div>
-                <div class="metric-mini-box"><span class="metric-val">V1.2</span><span class="metric-lab">Build</span></div>
-            </div>
-        </div>
+        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">ARES</div><div class="bot-role">Strategic Risk Auditor</div></div>
+        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">MIDAS</div><div class="bot-role">Chief BizDev Officer</div></div>
+        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">ATHENA</div><div class="bot-role">Chief Security Officer</div></div>
+        <div class="bot-card"><div class="status-indicator"><div class="status-dot"></div> ONLINE</div><div class="bot-name">HEPHAESTUS</div><div class="bot-role">Lead Architect & Dev</div></div>
     </div>
 
-    <!-- GLOBAL COMMAND LOG -->
     <div class="command-log-container">
-        <div class="log-header">
-            <span>GLOBAL COMMAND LOG</span>
-            <span>SECURE FEED :: Q1 2026</span>
-        </div>
-        <div class="log-body">
-            <div class="log-line"><span class="timestamp">[12:54:02]</span> <span class="tag-ares">[ARES]</span>: Scanning Spartans MID v2.0... Strategic concentration risk identified in Ankara Node.</div>
-            <div class="log-line"><span class="timestamp">[12:54:15]</span> <span class="tag-heph">[HEPH]</span>: Refactoring Ankara PUE to 1.18. Liquid-to-chip cooling implementation confirmed.</div>
-            <div class="log-line"><span class="timestamp">[12:54:30]</span> <span class="tag-athena">[ATHENA]</span>: Zero Trust Mesh deployed across all global assets. DDoS scrubbing active.</div>
-            <div class="log-line"><span class="timestamp">[12:54:45]</span> <span class="tag-midas">[MIDAS]</span>: Finalizing Sovereign Data-Link terms for Indonesia expansion. Yield projection: 140%.</div>
-            <div class="log-line"><span class="timestamp">[12:55:01]</span> <span class="tag-ares">[ARES]</span>: WARNING: Riyad Augustus Tower IRR at 32.5% requires secondary validation. Potential market saturation.</div>
-            <div class="log-line"><span class="timestamp">[12:55:10]</span> <span class="tag-midas">[MIDAS]</span>: Requesting $1.2B phase-1 allocation for Adriatic Colossal city-state project.</div>
-            <div class="log-line"><span class="timestamp">[12:55:22]</span> <span class="tag-athena">[ATHENA]</span>: Insider Threat Monitoring calibrated. GDPR/KVKK compliance audit: PASSED.</div>
-            <div class="log-line"><span class="timestamp">[12:55:35]</span> <span class="tag-heph">[HEPH]</span>: Building otonom AI dashboard for Chief. Repo: SpartanDev initialized.</div>
-            <div class="log-line"><span class="timestamp">[12:56:00]</span> <span class="tag-ares">[ARES]</span>: System check complete. All auditors standing by for Chief's command.</div>
-            <div class="log-line"> > _</div>
+        <div class="log-header"><span>GLOBAL REAL-TIME COMMAND LOG</span><span>ENCRYPTED FEED :: Q1 2026</span></div>
+        <div id="logBody" class="log-body">
+            <div class="log-line">Initializing secure connection to Firebase...</div>
         </div>
     </div>
 
-    <footer>
-        MANAGED BY WARLOCK2 ORCHESTRATOR | POWERED BY GROQ LLAMA 3.3 | SPARTANS DEV CORE MMXXVI
-    </footer>
+    <script>
+        const firebaseConfig = { databaseURL: "https://spartandev-dashboard-default-rtdb.firebaseio.com/" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        db.ref('logs').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            const logBody = document.getElementById('logBody');
+            const line = document.createElement('div');
+            line.className = 'log-line';
+            line.innerHTML = `<span class="timestamp">[${data.time}]</span> <span class="tag-${data.bot.toLowerCase().substring(0,5)}">[${data.bot}]</span>: ${data.msg}`;
+            logBody.prepend(line);
+        });
+    </script>
+
+    <footer>MANAGED BY WARLOCK2 | POWERED BY GROQ & FIREBASE | SPARTANS CORE</footer>
 </body>
 </html>
