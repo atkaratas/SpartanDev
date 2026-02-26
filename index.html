@@ -25,62 +25,52 @@
             margin: 0;
             padding: 40px;
         }
-        h1, h2, .section-title { font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 4px; }
+        h1, h2, .bot-name { font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 4px; }
         
-        .header { text-align: center; margin-bottom: 40px; border-bottom: 1px solid var(--maroon); padding-bottom: 20px; }
-        .header h1 { font-size: 3rem; color: var(--maroon); text-shadow: 0 0 20px rgba(128, 0, 0, 0.5); }
-
-        /* MISSION CHECKLIST */
-        .mission-panel {
-            max-width: 1400px;
-            margin: 0 auto 30px auto;
-            background: rgba(128, 0, 0, 0.05);
-            border: 1px solid var(--maroon);
-            padding: 20px;
-            border-radius: 4px;
-        }
-        .section-title { font-size: 1.2rem; color: var(--imperial-gold); margin-bottom: 15px; border-left: 4px solid var(--imperial-gold); padding-left: 15px; }
-        .task-list { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .task-item { 
-            background: rgba(255,255,255,0.02); 
-            padding: 12px 20px; 
-            border-radius: 4px; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px;
-            transition: all 0.3s ease;
-        }
-        .task-item.completed { opacity: 0.4; text-decoration: line-through; border-color: #2ecc71; }
-        .task-item.completed .status-box { background: #2ecc71; border-color: #2ecc71; }
-        .status-box { width: 15px; height: 15px; border: 1px solid var(--neon-blue); border-radius: 2px; }
+        .header { text-align: center; margin-bottom: 50px; border-bottom: 1px solid var(--maroon); padding-bottom: 20px; }
+        .header h1 { font-size: 3rem; color: var(--maroon); text-shadow: 0 0 20px rgba(128, 0, 0, 0.5); margin: 0; }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
             max-width: 1400px;
-            margin: 0 auto 30px auto;
+            margin: 0 auto 50px auto;
         }
 
         .bot-card {
             background: var(--glass-bg);
             border: 1px solid rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: 4px;
-            text-align: center;
+            padding: 25px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .bot-name { font-size: 1.5rem; color: var(--imperial-gold); margin-bottom: 5px; }
+
+        .bot-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .bot-name { font-size: 1.5rem; color: var(--imperial-gold); }
+        .status-dot { height: 10px; width: 10px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 10px #2ecc71; }
+
+        /* BOT SPECIFIC TASK LIST */
+        .bot-tasks { list-style: none; padding: 0; margin-bottom: 20px; }
+        .bot-task-item { font-size: 0.75rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; gap: 10px; }
+        .bot-task-item.done { text-decoration: line-through; opacity: 0.4; color: #2ecc71; }
+        .task-bullet { width: 6px; height: 6px; border: 1px solid var(--neon-blue); border-radius: 50%; }
+
+        /* PROGRESS BAR */
+        .progress-container { width: 100%; background: #111; height: 4px; border-radius: 2px; overflow: hidden; margin-top: 10px; }
+        .progress-bar { height: 100%; background: var(--neon-blue); width: 0%; transition: width 0.5s ease-in-out; box-shadow: 0 0 10px var(--neon-blue); }
 
         .command-log-container {
             max-width: 1400px;
             margin: 0 auto;
             background: #050505;
-            border: 1px solid var(--royal-purple);
+            border: 1px solid var(--maroon);
             border-radius: 4px;
             overflow: hidden;
         }
         .log-header {
-            background: var(--royal-purple);
+            background: var(--maroon);
             color: #FFF;
             padding: 8px 20px;
             font-family: 'Cinzel', serif;
@@ -96,35 +86,43 @@
             color: var(--neon-blue);
             overflow-y: auto;
         }
-        .log-line { margin-bottom: 5px; border-bottom: 1px solid rgba(0, 243, 255, 0.03); padding-bottom: 3px; }
-        .tag-ares { color: #ff4757; font-weight: bold; }
-        .tag-midas { color: #ffa502; font-weight: bold; }
-        .tag-athen { color: #70a1ff; font-weight: bold; }
-        .tag-hepha { color: #2ed573; font-weight: bold; }
+        .log-line { margin-bottom: 4px; border-bottom: 1px solid rgba(0, 243, 255, 0.02); }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>SPARTANS CORE</h1>
+        <h1>SPARTANS COUNCIL</h1>
     </div>
 
-    <!-- ACTIVE MISSIONS (CHECKLIST) -->
-    <div class="mission-panel">
-        <div class="section-title">Active Strategic Missions</div>
-        <ul id="taskList" class="task-list">
-            <!-- Tasks will be injected here -->
-        </ul>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="bot-card"><div class="bot-name">ARES</div></div>
-        <div class="bot-card"><div class="bot-name">MIDAS</div></div>
-        <div class="bot-card"><div class="bot-name">ATHENA</div></div>
-        <div class="bot-card"><div class="bot-name">HEPHAESTUS</div></div>
+    <div class="dashboard-grid" id="botGrid">
+        <!-- ARES -->
+        <div class="bot-card">
+            <div class="bot-header"><div class="bot-name">ARES</div><div class="status-dot"></div></div>
+            <ul class="bot-tasks" id="tasks-ares"></ul>
+            <div class="progress-container"><div class="progress-bar" id="progress-ares"></div></div>
+        </div>
+        <!-- MIDAS -->
+        <div class="bot-card">
+            <div class="bot-header"><div class="bot-name">MIDAS</div><div class="status-dot"></div></div>
+            <ul class="bot-tasks" id="tasks-midas"></ul>
+            <div class="progress-container"><div class="progress-bar" id="progress-midas"></div></div>
+        </div>
+        <!-- ATHENA -->
+        <div class="bot-card">
+            <div class="bot-header"><div class="bot-name">ATHENA</div><div class="status-dot"></div></div>
+            <ul class="bot-tasks" id="tasks-athena"></ul>
+            <div class="progress-container"><div class="progress-bar" id="progress-athena"></div></div>
+        </div>
+        <!-- HEPHAESTUS -->
+        <div class="bot-card">
+            <div class="bot-header"><div class="bot-name">HEPHAESTUS</div><div class="status-dot"></div></div>
+            <ul class="bot-tasks" id="tasks-hephaestus"></ul>
+            <div class="progress-container"><div class="progress-bar" id="progress-hephaestus"></div></div>
+        </div>
     </div>
 
     <div class="command-log-container">
-        <div class="log-header"><span>REAL-TIME COMMAND LOG</span><span>V2.2 :: ENCRYPTED</span></div>
+        <div class="log-header"><span>SYSTEM KERNEL DEBUG FEED</span><span>v3.0 :: LIVE</span></div>
         <div id="logBody" class="log-body"></div>
     </div>
 
@@ -133,28 +131,38 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // TASK LIST LOGIC
-        db.ref('tasks').on('value', (snapshot) => {
-            const tasks = snapshot.val();
-            const taskList = document.getElementById('taskList');
-            taskList.innerHTML = '';
+        // RENDER TASKS PER BOT
+        db.ref('bot_tasks').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const bots = ['ares', 'midas', 'athena', 'hephaestus'];
             
-            for (let id in tasks) {
-                const task = tasks[id];
-                const li = document.createElement('li');
-                li.className = `task-item ${task.completed ? 'completed' : ''}`;
-                li.innerHTML = `<div class="status-box"></div> <span>${task.text}</span>`;
-                taskList.appendChild(li);
-            }
+            bots.forEach(bot => {
+                const botTasks = data[bot] || [];
+                const listEl = document.getElementById(`tasks-${bot}`);
+                const progressEl = document.getElementById(`progress-${bot}`);
+                listEl.innerHTML = '';
+                
+                let completedCount = 0;
+                botTasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.className = `bot-task-item ${task.done ? 'done' : ''}`;
+                    li.innerHTML = `<div class="task-bullet"></div> ${task.text}`;
+                    listEl.appendChild(li);
+                    if(task.done) completedCount++;
+                });
+
+                const progress = (completedCount / botTasks.length) * 100 || 0;
+                progressEl.style.width = `${progress}%`;
+            });
         });
 
-        // LOG FEED LOGIC
+        // LIVE LOGS (TECHNICAL FORMAT)
         db.ref('logs').limitToLast(50).on('child_added', (snapshot) => {
             const data = snapshot.val();
             const logBody = document.getElementById('logBody');
             const line = document.createElement('div');
             line.className = 'log-line';
-            line.innerHTML = `<span style="color:#555">[${data.time}]</span> <span class="tag-${data.bot.toLowerCase().substring(0,5)}">[${data.bot}]</span>: ${data.msg}`;
+            line.innerHTML = `<span style="color:#444">[${data.time}]</span> ${data.msg}`;
             logBody.prepend(line);
         });
     </script>
